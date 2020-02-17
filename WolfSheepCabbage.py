@@ -1,5 +1,5 @@
 import pygame
-from Entities import Entity
+from Entities import Entity, Boat
 
 
 
@@ -19,13 +19,16 @@ pygame.display.set_caption("Wolf Sheep Cabbage Game")
 game_clock = pygame.time.Clock()
 
 background = pygame.image.load("Imgs/Background.jpeg").convert()
-boat = Entity(screen, 270, 300 ,"Imgs/Boat.png")
-wolf = Entity(screen, 90, 350, "Imgs/Wolf.png")
-sheep = pygame.image.load("Imgs/Sheep.png")
-cabbage = pygame.image.load("Imgs/Cabbage.png")
+boat = Boat("boat",screen, 270, 300 ,"Imgs/Boat.png")
+wolf = Entity("wolf",screen, 90, 350, "Imgs/Wolf.png")
+sheep = Entity("sheep", screen, 90, 450, "Imgs/Sheep.png")
+cabbage = Entity("cabbage", screen, 90, 550, "Imgs/Cabbage.png")
 
+animals = [wolf, sheep, cabbage]
 
-wolf.set_side("RIGHT")
+for animal in animals:
+    animal.set_side("LEFT")
+    animal.set_left(screen_w - 250, animal.get_y())
 
 game_crash = False
 
@@ -55,59 +58,62 @@ while not game_crash:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
                 boat.set_mov(-5)
-                if wolf.get_pos():
-                    wolf.set_mov(-5)
+                if not boat.get_content() == None:        
+                    boat.get_content().set_mov(-5)
             elif event.key == pygame.K_RIGHT:
                 boat.set_mov(5)
-                if wolf.get_pos():
-                    wolf.set_mov(5)
+                if not boat.get_content() == None:
+                    boat.get_content().set_mov(5)
+                
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 boat.set_mov(0)
-                if wolf.get_pos():
-                    wolf.set_mov(0)
+                if not boat.get_content() == None:   
+                    boat.get_content().set_mov(0)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             click_x, click_y = pygame.mouse.get_pos()
-            if wolf.isClickedOn(click_x,click_y):
-                if(boat.get_x() == 270):
-                    wolf.enter_boat()
-                    wolf.set_x(boat.get_x()+50)
-                    wolf.set_y(boat.get_y()-25)
+            for animal in animals:
+                if animal.isClickedOn(click_x,click_y):
+                    if (boat.get_x() == 270) and (boat.get_content() == None):
+                        boat.enter_boat(animal)
+                        animal.set_side(boat.get_side())
+                        animal.set_x(boat.get_x()+50)
+                        animal.set_y(boat.get_y()-25)
                    
                                            
                    
-        #    elif sheep.get_rect(topleft=(sheep_x,sheep_y)).collidepoint(click_x,click_y):
-    
-         #       print("Clicked on sheep.")
-          #     elif cabbage.get_rect(topleft=(cabbage_x,cabbage_y)).collidepoint(click_x, click_y):
-        
+       
     boat.move()
-    if wolf.get_pos():
-        wolf.move()
+    if not boat.get_content() == None:
+        boat.get_content().move() 
     
     if boat.get_x() <=270:
         boat.set_x(270)
         boat.set_direction("LEFT")
-        if wolf.get_side == "LEFT":
-            wolf.set_side("RIGHT")
-            wolf.leave_boat()
-            wolf.set_x(90)
-            wolf.set_y(350)
-
+        
+       
     elif boat.get_x() >= 750:
         boat.set_x(750)
-        if wolf.get_side == "RIGHT":
-            wolf.set_side("LEFT")
-            wolf.leave_boat()
-            wolf.set_x(1227)
-            wolf.set_y(350)
+        
+        if not boat.get_content() == None:
+            x,y = boat.get_content().get_left()
+            boat.get_content().set_x(x)
+            boat.get_content().set_y(y)
+            boat.get_content().set_direction("LEFT")
+            boat.get_content().set_side("RIGHT")
+            boat.leave_boat()
+    if boat.get_x() <= 510:
+        boat.set_side("LEFT")
+    elif boat.get_x() <= 750:
+        boat.set_side("RIGHT")
+    if sheep.get_side() == wolf.get_side() and not wolf.get_side() == boat.get_side():
+        print("You lose!")
     
-
     boat.draw()
     wolf.draw()
-    draw_object(sheep, 90, 450)
-    draw_object(cabbage, 90, 550)
+    sheep.draw()
+    cabbage.draw()
     pygame.display.update()
     game_clock.tick(60)
 

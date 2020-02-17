@@ -9,7 +9,8 @@ import pygame
 
 class Entity:
     
-    def __init__(self,screen,pos_x, pos_y, img):
+    def __init__(self,name,screen,pos_x, pos_y, img):
+        self.name = name
         self.screen = screen
         self.x = pos_x
         self.y = pos_y
@@ -18,7 +19,8 @@ class Entity:
         self.mov = 0
         self.direction = "RIGHT"
         self.side = ""
-        self.inBoat = False    
+        self.left_x = 0
+        self.right_x = 0
 
 
     def set_mov(self,x):
@@ -48,12 +50,6 @@ class Entity:
     def get_side(self):
         return self.side
     
-    def enter_boat(self):
-        self.inBoat = True
-    def leave_boat(self):
-        self.inBoat = False
-    def get_pos(self):
-        return self.inBoat
     def move(self):
         if(self.mov >=0):
             self.direction = "RIGHT"
@@ -63,5 +59,37 @@ class Entity:
     
     def isClickedOn(self, x, y):
         return self.rect.collidepoint(x,y)
-
     
+    def __eq__(self,other):
+        if not isinstance(other, Entity):
+            return NotImplemented
+        return self.name == other.name
+    
+    def set_left(self, x,y):
+        self.left_x = x
+        self.left_y = y
+    
+    def get_left(self):
+        return (self.left_x, self.left_y)
+
+class Boat(Entity):
+   
+    
+    def __init__(self, name, screen, pos_x, pos_y,  img):
+       Entity.__init__(self, name,screen, pos_x, pos_y, img)
+       self.contains = None
+    
+    def enter_boat(self, obj):
+        self.contains = obj
+
+    def leave_boat(self):
+        self.contains = None
+    
+    def get_content(self):
+        return self.contains
+
+    def content(self, obj):
+        if self.contains == obj:
+            return True
+        else:
+            return False
