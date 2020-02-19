@@ -2,7 +2,6 @@ import pygame
 from Entities import Entity, Boat
 
 
-
 pygame.init()
 
 
@@ -17,6 +16,9 @@ pygame.display.set_caption("Wolf Sheep Cabbage Game")
 
 
 game_clock = pygame.time.Clock()
+game_font = pygame.font.Font("Imgs/nimrod_mt.ttf", 48)
+
+
 
 background = pygame.image.load("Imgs/Background.jpeg").convert()
 boat = Boat("boat",screen, 270, 300 ,"Imgs/Boat.png")
@@ -32,14 +34,13 @@ for animal in animals:
 
 game_crash = False
 
-mov_boat = 0
 
-wolf_x = 90
-wolf_y = 350
-
-
-
-wolf_flag = 0
+def game_over():
+    text = game_font.render("GAME OVER", True, (0,0,0))
+    screen.blit(text,(520, 280))
+    for animal in animals:
+        animal.set_x(2000)
+        animal.set_y(2000)
 
 def draw_object(obj,x,y):
     screen.blit(obj,(x,y))
@@ -77,17 +78,25 @@ while not game_crash:
                 if animal.isClickedOn(click_x,click_y):
                     if (boat.get_x() == 270) and (boat.get_content() == None):
                         boat.enter_boat(animal)
-                        animal.set_side(boat.get_side())
                         animal.set_x(boat.get_x()+50)
                         animal.set_y(boat.get_y()-25)
-                   
-                                           
+                     
+                              
+
+    if boat.get_x() <= 510:
+        boat.set_side("LEFT")
+            
+           
+    elif boat.get_x() <= 750:
+        boat.set_side("RIGHT")
+
                    
        
     boat.move()
     if not boat.get_content() == None:
-        boat.get_content().move() 
-    
+        boat.get_content().move()
+        boat.get_content().set_rect()
+        boat.get_content().set_side(boat.get_side())
     if boat.get_x() <=270:
         boat.set_x(270)
         boat.set_direction("LEFT")
@@ -101,15 +110,15 @@ while not game_crash:
             boat.get_content().set_x(x)
             boat.get_content().set_y(y)
             boat.get_content().set_direction("LEFT")
-            boat.get_content().set_side("RIGHT")
             boat.leave_boat()
-    if boat.get_x() <= 510:
-        boat.set_side("LEFT")
-    elif boat.get_x() <= 750:
-        boat.set_side("RIGHT")
-    if sheep.get_side() == wolf.get_side() and not wolf.get_side() == boat.get_side():
-        print("You lose!")
-    
+
+            
+    if wolf.get_side() == sheep.get_side() and not wolf.get_side() == boat.get_side():
+        game_over()
+        
+    if sheep.get_side() == cabbage.get_side() and not sheep.get_side() == boat.get_side():
+        game_over()
+        
     boat.draw()
     wolf.draw()
     sheep.draw()

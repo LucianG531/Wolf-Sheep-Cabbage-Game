@@ -22,6 +22,9 @@ class Entity:
         self.left_x = 0
         self.right_x = 0
 
+    
+    def set_rect(self):
+        self.rect = self.image.get_rect(topleft = (self.x,self.y))
 
     def set_mov(self,x):
         self.mov = x
